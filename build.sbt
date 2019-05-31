@@ -16,4 +16,7 @@ lazy val root = (project in file("."))
     libraryDependencies += kittens
   )
 
+resolvers += Resolver.sonatypeRepo("releases")
+
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.1")
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.

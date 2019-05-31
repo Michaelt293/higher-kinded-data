@@ -59,3 +59,11 @@ With that done, here's an example an of this code in action!
 ```scala
 PersonHK[Option](Some("Michael"), Some(65)).validate == Some(PersonHK[Id]("Michael", 65))
 ```
+
+import hkdata.CombineHKD._
+import hkdata.examples.WeatherDataHK._
+import hkdata.monoid._
+import cats._
+import cats.implicits._
+
+partialWeatherData.concatHKD[Lambda[a => Id[Option[a]]]]
