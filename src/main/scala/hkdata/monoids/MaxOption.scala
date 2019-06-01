@@ -1,6 +1,6 @@
-package hkdata.monoid
+package hkdata.monoids
 
-import cats.implicits._, cats._, cats.derived._
+import cats.Monoid, cats.implicits._
 
 case class MaxOption[A](getMaxOption: Option[A]) extends AnyVal
 

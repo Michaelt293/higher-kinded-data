@@ -62,7 +62,7 @@ PersonHK[Option](Some("Michael"), Some(65)).validate == Some(PersonHK[Id]("Micha
 
 import hkdata.CombineHKD._
 import hkdata.examples.WeatherDataHK._
-import hkdata.monoid._
+import hkdata.monoids._
 import cats._
 import cats.implicits._
 

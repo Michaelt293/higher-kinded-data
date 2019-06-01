@@ -6,7 +6,7 @@ import org.scalatest._
 
 class CombineHKDSpec extends FlatSpec with Matchers {
   import CombineHKD._
-  import monoid.Mean
+  import monoids._
 
   case class Account[F[_]](deposit: F[Int], withdrawl: F[Int])
 
@@ -53,8 +53,6 @@ class CombineHKDSpec extends FlatSpec with Matchers {
     )
 
     val test: List[Account[Id]] = List(accountId1, accountId2)
-  
-    
 
     accountId1
       .combineHKD[MeanSum](accountId2) shouldEqual test.concatHKD[MeanSum]

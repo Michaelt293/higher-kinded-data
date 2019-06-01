@@ -1,6 +1,6 @@
-package hkdata.monoid
+package hkdata.monoids
 
-import cats.implicits._, cats._, cats.derived._
+import cats.Monoid
 
 case class Product[N](getProduct: N) extends AnyVal
 
@@ -12,20 +12,5 @@ object Product {
         Product(
           numeric.times(m1.getProduct, m2.getProduct)
         )
-    }
-
-  implicit val productFunctor: Functor[Product] = {
-    import derived.auto.functor._
-    derived.semi.functor
-  }
-
-  implicit val productApplicative: Applicative[Product] =
-    new Applicative[Product] {
-      def ap[A, B](pf: Product[A => B])(pa: Product[A]): Product[B] =
-        (pf, pa) match {
-          case (Product(f), Product(b)) => Product(f(b))
-        }
-
-      def pure[A](a: A): Product[A] = Product(a)
     }
 }

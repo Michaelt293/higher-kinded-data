@@ -1,6 +1,6 @@
-package hkdata.monoid
+package hkdata.monoids
 
-import cats.implicits._, cats._, cats.derived._
+import cats.implicits._, cats.Monoid
 
 case class MinOption[A](getMinOption: Option[A]) extends AnyVal
 

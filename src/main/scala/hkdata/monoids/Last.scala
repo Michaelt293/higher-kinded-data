@@ -1,4 +1,4 @@
-package hkdata.monoid
+package hkdata.monoids
 
 import cats.Monoid
 

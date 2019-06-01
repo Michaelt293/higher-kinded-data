@@ -1,6 +1,6 @@
-package hkdata.monoid
+package hkdata.monoids
 
-import cats.implicits._, cats._, cats.derived._
+import cats.Monoid
 
 case class Mean[N](numerator: N, denominator: Int) {
   def mean(implicit numeric: Numeric[N]): Option[Float] =
@@ -17,20 +17,5 @@ object Mean {
           numeric.plus(m1.numerator, m2.numerator),
           m1.denominator + m2.denominator
         )
-    }
-
-  implicit val meanFunctor: Functor[Mean] = {
-    import derived.auto.functor._
-    derived.semi.functor
-  }
-
-  implicit val meanApplicative: Applicative[Mean] =
-    new Applicative[Mean] {
-      def ap[A, B](mf: Mean[A => B])(ma: Mean[A]): Mean[B] =
-        (mf, ma) match {
-          case (Mean(f, n1), Mean(b, n2)) => Mean(f(b), n1 + n2)
-        }
-
-      def pure[A](a: A): Mean[A] = Mean(a, 1)
     }
 }

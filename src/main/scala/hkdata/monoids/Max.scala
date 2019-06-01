@@ -1,6 +1,6 @@
-package hkdata.monoid
+package hkdata.monoids
 
-import cats.implicits._, cats._, cats.derived._
+import cats.Monoid
 
 case class Max[A](getMax: A) extends AnyVal
 
@@ -22,19 +22,4 @@ object Max {
 
   implicit def floatMaxMonoid =
     instance(Float.MinValue, (x: Float, y: Float) => if (x < y) y else x)
-
-  implicit val maxFunctor: Functor[Max] = {
-    import derived.auto.functor._
-    derived.semi.functor
-  }
-
-  implicit val maxApplicative: Applicative[Max] =
-    new Applicative[Max] {
-      def ap[A, B](pf: Max[A => B])(pa: Max[A]): Max[B] =
-        (pf, pa) match {
-          case (Max(f), Max(b)) => Max(f(b))
-        }
-
-      def pure[A](a: A): Max[A] = Max(a)
-    }
 }

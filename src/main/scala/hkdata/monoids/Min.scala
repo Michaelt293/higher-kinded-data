@@ -1,6 +1,6 @@
-package hkdata.monoid
+package hkdata.monoids
 
-import cats.implicits._, cats._, cats.derived._
+import cats.implicits._, cats.Monoid
 
 case class Min[A](getMin: A) extends AnyVal
 
@@ -22,19 +22,4 @@ object Min {
 
   implicit def floatMinMonoid =
     instance(Float.MaxValue, (x: Float, y: Float) => if (x > y) y else x)
-
-  implicit val minFunctor: Functor[Min] = {
-    import derived.auto.functor._
-    derived.semi.functor
-  }
-
-  implicit val minApplicative: Applicative[Min] =
-    new Applicative[Min] {
-      def ap[A, B](mf: Min[A => B])(ma: Min[A]): Min[B] =
-        (mf, ma) match {
-          case (Min(f), Min(b)) => Min(f(b))
-        }
-
-      def pure[A](a: A): Min[A] = Min(a)
-    }
 }
