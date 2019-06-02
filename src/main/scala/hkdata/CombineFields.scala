@@ -7,7 +7,7 @@ import shapeless.{::, HList, HNil, Generic}
 trait CombineFields[A] {
   type Out
 
-  def toCombiningF(a: A)(implicit m: Monoid[Out]): Out
+  def toCombiningF(a: A): Out
 }
 
 object CombineFields {
@@ -15,11 +15,11 @@ object CombineFields {
 
   type Aux[A, B] = CombineFields[A] { type Out = B }
 
-  def instance[A, B](f: A => B): Aux[A, B] =
+  def instance[A, B](toF: A => B): Aux[A, B] =
     new CombineFields[A] {
       type Out = B
 
-      def toCombiningF(a: A)(implicit m: Monoid[B]): B = f(a)
+      def toCombiningF(a: A): B = toF(a)
     }
 
   implicit def listCombineFields[A, F[_]](
@@ -34,16 +34,10 @@ object CombineFields {
   ): Aux[F[A], Set[A]] =
     instance(foldable.toList(_).toSet)
 
-  implicit def meanOptionCombineFields[A]: Aux[Option[A], MeanOption[A]] =
-    instance {
-      case None => MeanOption(None, 0)
-      case some => MeanOption(some, 1)
-    }
-
   implicit def meanIdCombineFields[A]: Aux[Id[A], Mean[A]] =
     instance(Mean(_, 1))
 
-  implicit def meanOptionCombineFields[A](
+  implicit def meanOptCombineFields[A](
       implicit numeric: Numeric[A]
   ): Aux[Option[A], Mean[A]] =
     instance {
@@ -51,10 +45,16 @@ object CombineFields {
       case Some(n) => Mean(n, 1)
     }
 
-  implicit def maxOptionCombineFields[A]: Aux[Option[A], MaxOption[A]] =
+  implicit def meanOptionOptCombineFields[A]: Aux[Option[A], MeanOption[A]] =
+    instance {
+      case None => MeanOption(None, 0)
+      case some => MeanOption(some, 1)
+    }
+
+  implicit def maxOptioOptCombineFields[A]: Aux[Option[A], MaxOption[A]] =
     instance(MaxOption(_))
 
-  implicit def minOptionCombineFields[A]: Aux[Option[A], MinOption[A]] =
+  implicit def minOptionOptCombineFields[A]: Aux[Option[A], MinOption[A]] =
     instance(MinOption(_))
 
   implicit def maxOptionIdCombineFields[A]: Aux[Id[A], MaxOption[A]] =
@@ -63,10 +63,10 @@ object CombineFields {
   implicit def minOptionIdCombineFields[A]: Aux[Id[A], MinOption[A]] =
     instance(a => MinOption(Some(a)))
 
-  implicit def firstCombineFields[A]: Aux[Option[A], First[Option[A]]] =
+  implicit def firstOptCombineFields[A]: Aux[Option[A], First[Option[A]]] =
     instance(First(_))
 
-  implicit def lastCombineFields[A]: Aux[Option[A], Last[Option[A]]] =
+  implicit def lastOptCombineFields[A]: Aux[Option[A], Last[Option[A]]] =
     instance(Last(_))
 
   implicit def maxIdCombineFields[A]: Aux[Id[A], Max[A]] =
@@ -78,7 +78,7 @@ object CombineFields {
   implicit def productIdCombineFields[A]: Aux[Id[A], Product[A]] =
     instance(Product(_))
 
-  implicit def productOptionCombineFields[A](
+  implicit def productOptCombineFields[A](
       implicit numeric: Numeric[A]
   ): Aux[Option[A], Product[A]] =
     instance {
@@ -86,18 +86,33 @@ object CombineFields {
       case Some(n) => Product(n)
     }
 
-  implicit def monoidCombineFields[A, F[_]](
-      implicit
-      monoid: Monoid[F[A]]
-  ): Aux[F[A], F[A]] =
+  implicit def sumIdCombineFields[A]: Aux[Id[A], Sum[A]] =
+    instance(Sum(_))
+
+  implicit def sumOptCombineFields[A](
+      implicit numeric: Numeric[A]
+  ): Aux[Option[A], Sum[A]] =
+    instance {
+      case None    => Sum(numeric.zero)
+      case Some(n) => Sum(n)
+    }
+
+  implicit def countsIdCombineFields[A]: Aux[Id[A], Counts[A]] =
+    instance(a => Counts(Map(a -> 1)))
+
+  implicit def countsOptCombineFields[A]: Aux[Option[A], Counts[A]] =
+    instance {
+      case None    => Counts(Map.empty[A, Int])
+      case Some(a) => Counts(Map(a -> 1))
+    }
+
+  implicit def identityCombineFields[A, F[_]]: Aux[F[A], F[A]] =
     instance(identity)
 
   implicit def tuple2CombineFields[A, F[_], G[_], H[_]](
       implicit
       gAux: Aux[F[A], G[A]],
-      hAux: Aux[F[A], H[A]],
-      gMonoid: Monoid[G[A]],
-      hMonoid: Monoid[H[A]]
+      hAux: Aux[F[A], H[A]]
   ): Aux[F[A], (G[A], H[A])] =
     instance(
       h => (gAux.toCombiningF(h), hAux.toCombiningF(h))
@@ -107,10 +122,7 @@ object CombineFields {
       implicit
       gAux: Aux[F[A], G[A]],
       hAux: Aux[F[A], H[A]],
-      iAux: Aux[F[A], I[A]],
-      gMonoid: Monoid[G[A]],
-      hMonoid: Monoid[H[A]],
-      iMonoid: Monoid[I[A]]
+      iAux: Aux[F[A], I[A]]
   ): Aux[F[A], (G[A], H[A], I[A])] =
     instance(
       h =>
@@ -126,11 +138,7 @@ object CombineFields {
       gAux: Aux[F[A], G[A]],
       hAux: Aux[F[A], H[A]],
       iAux: Aux[F[A], I[A]],
-      jAux: Aux[F[A], J[A]],
-      gMonoid: Monoid[G[A]],
-      hMonoid: Monoid[H[A]],
-      iMonoid: Monoid[I[A]],
-      jMonoid: Monoid[J[A]]
+      jAux: Aux[F[A], J[A]]
   ): Aux[F[A], (G[A], H[A], I[A], J[A])] =
     instance(
       h =>

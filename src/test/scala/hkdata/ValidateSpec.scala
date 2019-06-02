@@ -5,7 +5,8 @@ import cats.implicits._
 import org.scalatest._
 
 class ValidateSpec extends FlatSpec with Matchers {
-  import PersonHK._
+  import hkdata.examples.PersonHK
+  import hkdata.examples.PersonHK._
   import Validate._
 
   val testOptionPerson: OptionPerson =
@@ -21,9 +22,6 @@ class ValidateSpec extends FlatSpec with Matchers {
 
   val invalidPerson3: OptionPerson =
     PersonHK[Option](None, None)
-
-  println(testOptionPerson)
-  println(testOptionPerson.show)
 
   "validate" should "succeed when both fields are nonEmpty" in {
     testOptionPerson.validate shouldEqual Some(testPerson)

@@ -1,6 +1,6 @@
 package hkdata.monoids
 
-import cats.implicits._, cats.Monoid
+import cats.Monoid
 
 case class Min[A](getMin: A) extends AnyVal
 
@@ -22,4 +22,7 @@ object Min {
 
   implicit def floatMinMonoid =
     instance(Float.MaxValue, (x: Float, y: Float) => if (x > y) y else x)
+
+  implicit def doubleMinMonoid =
+    instance(Double.MaxValue, (x: Double, y: Double) => if (x > y) y else x)
 }

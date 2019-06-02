@@ -9,12 +9,10 @@ trait CombineHKD[A] {
 
   def emptyHDK: Out
   def toCombiningF(a: A): Out
-  def combineHKD(a1: Out, a2: Out): Out
+  def combineHKD(out1: Out, out2: Out): Out
 }
 
 object CombineHKD {
-  import monoids._
-
   type Aux[A, B] = CombineHKD[A] { type Out = B }
 
   def instance[A, B](emp: B, toF: A => B, comb: (B, B) => B): Aux[A, B] =
@@ -23,7 +21,7 @@ object CombineHKD {
 
       def emptyHDK: B = emp
       def toCombiningF(a: A): B = toF(a)
-      def combineHKD(a1: B, a2: B): B = comb(a1, a2)
+      def combineHKD(b1: B, b2: B): B = comb(b1, b2)
     }
 
   implicit val hnilCombineHKD: Aux[HNil, HNil] =
@@ -31,28 +29,30 @@ object CombineHKD {
 
   implicit def hconsCombineHKD[A, F[_], G[_], T <: HList, T1 <: HList](
       implicit
-      monoid: Monoid[G[A]],
-      tAux: Aux[T, T1],
-      hAux: CombineFields.Aux[F[A], G[A]]
+      field: CombineFields.Aux[F[A], G[A]],
+      hkd: CombineHKD.Aux[T, T1],
+      monoid: Monoid[G[A]]
   ): Aux[F[A] :: T, G[A] :: T1] =
-    instance({ monoid.empty :: tAux.emptyHDK }, {
-      case h :: t =>
-        hAux.toCombiningF(h) :: tAux.toCombiningF(t)
-    }, {
-      case (h1 :: t1, h2 :: t2) =>
-        (h1 |+| h2) :: tAux.combineHKD(t1, t2)
-    })
+    instance(
+      monoid.empty :: hkd.emptyHDK, {
+        case h :: t =>
+          field.toCombiningF(h) :: hkd.toCombiningF(t)
+      }, {
+        case (h1 :: t1, h2 :: t2) =>
+          (h1 |+| h2) :: hkd.combineHKD(t1, t2)
+      }
+    )
 
   implicit def genericCombineHKD[A, ARepr <: HList, B, BRepr <: HList](
       implicit
       genA: Generic.Aux[A, ARepr],
       genB: Generic.Aux[B, BRepr],
-      aux: Aux[ARepr, BRepr]
+      hkd: CombineHKD.Aux[ARepr, BRepr]
   ): Aux[A, B] = {
     instance(
-      genB.from(aux.emptyHDK),
-      a1 => genB.from(aux.toCombiningF(genA.to(a1))),
-      (x, y) => genB.from(aux.combineHKD(genB.to(x), genB.to(y)))
+      genB.from(hkd.emptyHDK),
+      a => genB.from(hkd.toCombiningF(genA.to(a))),
+      (b1, b2) => genB.from(hkd.combineHKD(genB.to(b1), genB.to(b2)))
     )
   }
 
@@ -62,10 +62,10 @@ object CombineHKD {
     def concatHKD[H[_]](
         implicit
         foldable: Foldable[F],
-        aux: Aux[HKD[G], HKD[H]]
+        hkd: CombineHKD.Aux[HKD[G], HKD[H]]
     ): HKD[H] =
-      foldable.foldLeft(data, aux.emptyHDK) { (b, a) =>
-        aux.combineHKD(b, aux.toCombiningF(a))
+      foldable.foldLeft(data, hkd.emptyHDK) { (h, g) =>
+        hkd.combineHKD(h, hkd.toCombiningF(g))
       }
   }
 }

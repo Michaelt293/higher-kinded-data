@@ -5,10 +5,10 @@ import cats.Monoid
 case class First[A](getFirst: A) extends AnyVal
 
 object First {
-  def firstMonoid[A] =
+  implicit def firstMonoid[A] =
     new Monoid[First[Option[A]]] {
       val empty = First(None)
-      def combine(m1: First[Option[A]], m2: First[Option[A]]) =
-        First(m1.getFirst.orElse(m2.getFirst))
+      def combine(f1: First[Option[A]], f2: First[Option[A]]) =
+        First(f1.getFirst.orElse(f2.getFirst))
     }
 }

@@ -1,4 +1,4 @@
-package hkdata
+package hkdata.examples
 
 import cats.implicits._, cats._, cats.derived._
 

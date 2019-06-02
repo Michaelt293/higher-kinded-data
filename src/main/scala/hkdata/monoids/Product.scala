@@ -8,9 +8,9 @@ object Product {
   implicit def productMonoid[N](implicit numeric: Numeric[N]) =
     new Monoid[Product[N]] {
       def empty = Product(numeric.one)
-      def combine(m1: Product[N], m2: Product[N]) =
+      def combine(p1: Product[N], p2: Product[N]) =
         Product(
-          numeric.times(m1.getProduct, m2.getProduct)
+          numeric.times(p1.getProduct, p2.getProduct)
         )
     }
 }

@@ -3,8 +3,8 @@ package hkdata.examples
 import cats.Id
 
 case class WeatherDataHK[F[_]](
-    temp: F[Float],
-    dewPoint: F[Float],
+    temp: F[Double],
+    dewPoint: F[Double],
     windSpeed: F[Int]
 )
 
@@ -13,18 +13,18 @@ object WeatherDataHK {
   type OptionWeatherData = WeatherDataHK[Option]
 
   val completeWeatherData: List[WeatherData] = List(
-    WeatherDataHK[Id](21.4f, 19.9f, 4),
-    WeatherDataHK[Id](23.1f, 19.8f, 11),
-    WeatherDataHK[Id](26.7f, 21.4f, 8),
-    WeatherDataHK[Id](27.2f, 22.0f, 8),
-    WeatherDataHK[Id](27.7f, 21.1f, 14)
+    WeatherDataHK[Id](21.4, 19.9, 4),
+    WeatherDataHK[Id](23.1, 19.8, 11),
+    WeatherDataHK[Id](26.7, 21.4, 8),
+    WeatherDataHK[Id](27.2, 22.0, 8),
+    WeatherDataHK[Id](27.7, 21.1, 14)
   )
 
   val partialWeatherData: List[OptionWeatherData] = List(
-    WeatherDataHK[Option](Some(21.4f), Some(19.9f), Some(4)),
-    WeatherDataHK[Option](Some(23.1f), Some(19.8f), Some(11)),
-    WeatherDataHK[Option](Some(26.7f), Some(21.4f), Some(8)),
-    WeatherDataHK[Option](Some(27.2f), Some(22.0f), Some(8)),
-    WeatherDataHK[Option](Some(27.7f), Some(21.1f), Some(14))
+    WeatherDataHK[Option](Some(28.6), Some(19.9), None),
+    WeatherDataHK[Option](Some(27.1), Some(19.8), Some(66)),
+    WeatherDataHK[Option](Some(26.5), Some(21.4), Some(91)),
+    WeatherDataHK[Option](Some(22.2), None, Some(154)),
+    WeatherDataHK[Option](Some(21.8), None, None)
   )
 }

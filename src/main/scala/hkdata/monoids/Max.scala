@@ -5,7 +5,7 @@ import cats.Monoid
 case class Max[A](getMax: A) extends AnyVal
 
 object Max {
-  def instance[A](emp: A, comb: (A, A) => A) =
+  private def instance[A](emp: A, comb: (A, A) => A) =
     new Monoid[Max[A]] {
       val empty = Max(emp)
       def combine(m1: Max[A], m2: Max[A]) =
@@ -22,4 +22,7 @@ object Max {
 
   implicit def floatMaxMonoid =
     instance(Float.MinValue, (x: Float, y: Float) => if (x < y) y else x)
+
+  implicit def doubleMaxMonoid =
+    instance(Double.MinValue, (x: Double, y: Double) => if (x < y) y else x)
 }
