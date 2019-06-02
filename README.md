@@ -62,7 +62,7 @@ With that done, here's an example an of this code in action!
 PersonHK[Option](Some("Michael"), Some(65)).validate == Some(PersonHK[Id]("Michael", 65))
 ```
 
-##  Type-directed aggregations using higher-kinded Data
+##  Type-directed aggregations using higher-kinded data
 
 In the previous section, we developed a `validate` method which has the following type - `HK[Option] => Option[HK[Id]]`. This method is analogous to a type-level `sequence`. In this section, we will explore how higher-kinded data can be used for useful aggregations using a method analogous to `foldMap`.
 
@@ -111,7 +111,7 @@ trait CombineHKD[A] { // instances for this type class can be derived using Shap
 Finally, we can define an  extension method, `concatHKD`, for folding over some `Foldable` `F` containing higher-kinded data of type `HKD[G]`. Note that `concatHKD` is parameterised by `H[_]` allowing us to select the aggregation behaviour -
 
 ```scala
-implicit class FunctorCombineHKDOps[F[_], HKD[_[_]], G[_]](
+implicit class FoldableCombineHKDOps[F[_], HKD[_[_]], G[_]](
     data: F[HKD[G]]
 ) {
   def concatHKD[H[_]](

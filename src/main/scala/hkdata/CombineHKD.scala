@@ -56,7 +56,7 @@ object CombineHKD {
     )
   }
 
-  implicit class FunctorCombineHKDOps[F[_], HKD[_[_]], G[_]](
+  implicit class FoldableCombineHKDOps[F[_], HKD[_[_]], G[_]](
       data: F[HKD[G]]
   ) {
     def concatHKD[H[_]](
